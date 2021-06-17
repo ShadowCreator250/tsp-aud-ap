@@ -12,12 +12,12 @@ import java.util.regex.Pattern;
 
 import tsp.model.Point;
 
-public class CSVManager {
+public class CSVUtil {
 
   private static final Pattern numberRegex = Pattern.compile("\\d+");
 
   // declaring constructor as private prevents that it is ever called
-  private CSVManager() {
+  private CSVUtil() {
     throw new IllegalStateException("Utility class");
   }
 
