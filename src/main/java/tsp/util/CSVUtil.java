@@ -27,7 +27,7 @@ public class CSVUtil {
    * @param filename name of the csv file
    * @return a list of points
    */
-  public static List<Point> readFromFile(String filename) {
+  public static List<Point> readPointsFromFile(String filename) {
 
     List<Point> points = new ArrayList<>();
     Path path = Paths.get(filename);
