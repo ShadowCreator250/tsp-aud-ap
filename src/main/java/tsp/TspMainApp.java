@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import tsp.view.MainViewController;
 
 public class TspMainApp extends Application {
 
@@ -28,6 +29,10 @@ public class TspMainApp extends Application {
     try {
       rootElement = loader.load();
       Scene scene = new Scene(rootElement);
+
+      MainViewController controller = loader.getController();
+      controller.setMain(this);
+
       primaryStage.setScene(scene);
       primaryStage.show();
     } catch(IOException e) {
@@ -41,4 +46,8 @@ public class TspMainApp extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
+
+  public Stage getPrimaryStage() {
+    return primaryStage;
+  }
 }
