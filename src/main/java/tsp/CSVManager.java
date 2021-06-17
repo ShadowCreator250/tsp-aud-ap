@@ -8,10 +8,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import tsp.model.Point;
 
 public class CSVManager {
+  
+  private static final Pattern numberRegex = Pattern.compile("\\d+");
 
   /**
    * reads a csv file and converts it to points
@@ -43,8 +46,8 @@ public class CSVManager {
     return points;
   }
 
-  private static int ConvertToInt(String string) {
-    if(string.matches("\\d+")) {
+  private static int convertToInt(String string) {
+    if(numberRegex.matcher(string).matches()) {
       return Integer.parseInt(string);
     }
     throw new IllegalArgumentException("String did contain non-digit characters");
