@@ -13,33 +13,34 @@ import java.util.regex.Pattern;
 import tsp.model.Point;
 
 public class CSVManager {
-  
+
   private static final Pattern numberRegex = Pattern.compile("\\d+");
+
+  // declaring constructor as private prevents that it is ever called
+  private CSVManager() {
+    throw new IllegalStateException("Utility class");
+  }
 
   /**
    * reads a csv file and converts it to points
-   * @param filename name of the csv file
-   * @return a list of points 
    * 
+   * @param filename name of the csv file
+   * @return a list of points
    */
-  public static List<Point> readFromFile(String filename)
-  {
+  public static List<Point> readFromFile(String filename) {
 
-    List<Point> points = new ArrayList<Point>();
+    List<Point> points = new ArrayList<>();
     Path path = Paths.get(filename);
-    
-    try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.US_ASCII))
-    {
+
+    try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
       String line = reader.readLine();
-      
+
       while(line != null) {
         String[] split = line.split(";");
 
-        points.add(new Point(ConvertToInt(split[0]), ConvertToInt(split[1])));
+        points.add(new Point(convertToInt(split[0].trim()), convertToInt(split[1].trim())));
       }
-    }
-    catch(IOException e)
-    {
+    } catch(IOException e) {
       e.printStackTrace();
     }
 
