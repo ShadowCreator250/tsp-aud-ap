@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
 import tsp.model.Point;
 
 public class CSVUtil {
@@ -39,6 +41,7 @@ public class CSVUtil {
         String[] split = line.split(";");
 
         points.add(new Point(convertToInt(split[0].trim()), convertToInt(split[1].trim())));
+        line = reader.readLine();
       }
     } catch(IOException e) {
       e.printStackTrace();
@@ -52,5 +55,16 @@ public class CSVUtil {
       return Integer.parseInt(string);
     }
     throw new IllegalArgumentException("String did contain non-digit characters");
+  }
+
+  public static Series<Number, Number> ConvertToSeries(List<Point> readPointsFromFile) {
+    Series<Number, Number> series = new Series<Number, Number>();
+
+    for(Point p : readPointsFromFile) {
+      series.getData()
+            .add(new Data<Number, Number>(p.getX(), p.getY()));
+    }
+
+    return series;
   }
 }
