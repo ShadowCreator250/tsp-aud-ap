@@ -24,12 +24,14 @@ public class CSVUtil {
   }
 
   /**
-   * reads a csv file and converts it to points
+   * Reads a csv file and converts its entries to points.<br>
+   * Currently only supports positive point coordinates.
    * 
    * @param filename name of the csv file
    * @return a list of points
+   * @throws IOException When something goes wrong while reading the file.
    */
-  public static List<Point> readPointsFromFile(String filename) {
+  public static List<Point> readPointsFromFile(String filename) throws IOException {
     List<Point> points = new ArrayList<>();
     Path path = Paths.get(filename);
 
@@ -39,8 +41,6 @@ public class CSVUtil {
 
         points.add(new Point(convertToInt(split[0].trim()), convertToInt(split[1].trim())));
       }
-    } catch(IOException e) {
-      e.printStackTrace();
     }
 
     return points;
