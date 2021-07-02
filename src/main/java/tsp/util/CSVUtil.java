@@ -57,14 +57,12 @@ public class CSVUtil {
     throw new IllegalArgumentException("String did contain non-digit characters");
   }
 
-  public static Series<Number, Number> ConvertToSeries(List<Point> readPointsFromFile) {
-    Series<Number, Number> series = new Series<Number, Number>();
+  public static Series<Number, Number> convertToSeries(List<Point> points) {
+    Series<Number, Number> series = new Series<>();
 
-    for(Point p : readPointsFromFile) {
-      series.getData()
-            .add(new Data<Number, Number>(p.getX(), p.getY()));
+    for(Point p : points) {
+      series.getData().add(new Data<>(p.getX(), p.getY()));
     }
-
     return series;
   }
 }
