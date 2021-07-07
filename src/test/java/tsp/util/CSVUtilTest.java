@@ -23,11 +23,10 @@ class CSVUtilTest {
    * but to load the resource it is necessary to strip the first "/".
    */
   private String buildPath(String csvFileName) {
-    System.out.println(CSVUtilTest.class.getClassLoader().getResource(csvFileName).getPath());
     return CSVUtilTest.class.getClassLoader().getResource(csvFileName).getPath().substring(1);
   }
 
-  // Passing the test name as an unused argument is not ideal but a better solution will only be available whenJUnit 5.8 comes out: https://github.com/junit-team/junit5/pull/2521
+  // Passing the test name as an unused argument is not ideal but a better solution will only be available when JUnit 5.8 comes out: https://github.com/junit-team/junit5/pull/2521
   @ParameterizedTest(name = "{index}: {1}")
   @CsvSource({
       "-120;-30, readNegativeIntsUnsuccessfullyTest",
@@ -35,7 +34,8 @@ class CSVUtilTest {
       "hi;ha, readCharactersUnsuccessfullyTest",
       "20;, readPositiveIntsWithEmptyRightColumnUnsuccessfullyTest",
       ";20, readPositiveIntsWithEmptyLeftColumnUnsuccessfullyTest",
-      "20, readPositiveIntsWithEmptyRightColumnAndWithoutSemicolonUnsuccessfullyTest"
+      "20, readPositiveIntsWithEmptyRightColumnAndWithoutSemicolonUnsuccessfullyTest",
+      "'', readEmptyStringUnsucessfullyTest",
   })
   void invalidCsvWithDefaultDelimiterTest(String csvString, String testName) {
     assertThrows(CSVFormatException.class, () -> CSVUtil.readPointFromString(csvString));
@@ -45,10 +45,20 @@ class CSVUtilTest {
   @CsvSource({
       "100;100, readPositiveIntsSuccessfullyTest",
       "20;20;20, readPositiveIntsWithAdditionalColumnSuccessfullyTest",
-      "'\n   235  \t;   976   \t   ', readPositiveIntsWithSpaceSuccessfullyTest"
+      "'\n   235  \t;   976   \t   ', readPositiveIntsWithSpaceSuccessfullyTest",
   })
   void validCsvWithDefaultDelimiterTest(String csvString, String testName) {
     assertDoesNotThrow(() -> CSVUtil.readPointFromString(csvString));
+  }
+
+  @Test
+  void csvSringIsNullTest() {
+    assertThrows(IllegalArgumentException.class, () -> CSVUtil.readPointFromString(null));
+  }
+
+  @Test
+  void delimiterIsNullTest() {
+    assertThrows(IllegalArgumentException.class, () -> CSVUtil.readPointFromString("", null));
   }
 
   @Test
@@ -59,6 +69,17 @@ class CSVUtilTest {
     assertEquals(new Point(0, 0), points.get(0));
     assertEquals(new Point(20, 20), points.get(1));
     assertEquals(new Point(100, 100), points.get(2));
+  }
+
+  @Test
+  void filenameIsNullTest() {
+    assertThrows(IllegalArgumentException.class, () -> CSVUtil.readPointsFromFile(null));
+  }
+
+  @Test
+  void fileNonExistentTest() {
+    // will throw NPE because getResource() returns null if no resource is found and we try to call a method in that.
+    assertThrows(NullPointerException.class, () -> CSVUtil.readPointsFromFile(buildPath("poiNts-tst-Set.csv")));
   }
 
 }

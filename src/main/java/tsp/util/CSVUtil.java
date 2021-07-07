@@ -55,6 +55,10 @@ public class CSVUtil {
    * @see uses: {@link CSVUtil#readPointFromString(String, String)}
    */
   public static List<Point> readPointsFromFile(String filename, String delimiter) throws IOException, CSVFormatException {
+    if(filename == null) {
+      throw new IllegalArgumentException("The filename can not be null.");
+    }
+
     List<Point> points = new ArrayList<>();
     Path path = Paths.get(filename);
 
@@ -90,6 +94,12 @@ public class CSVUtil {
    * @throws CSVFormatException when something with the csv isn't right.
    */
   public static Point readPointFromString(String csvString, String delimiter) throws CSVFormatException {
+    if(csvString == null) {
+      throw new IllegalArgumentException("The csvString can not be null.");
+    }
+    if(delimiter == null) {
+      throw new IllegalArgumentException("The delimiter can not be null.");
+    }
     if(!csvString.contains(delimiter)) {
       throw new CSVFormatException("Failed to convert: String \"" + csvString + "\" does not contain the delimiter \"" + delimiter + "\".");
     }
