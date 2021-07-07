@@ -10,7 +10,7 @@ class PointTest {
   @Test
   void pointCoordsAreSetCorrectlyTest() {
     Point p = new Point(21, 212);
-    
+
     assertEquals(21, p.getX());
     assertEquals(212, p.getY());
   }
