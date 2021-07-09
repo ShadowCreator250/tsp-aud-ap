@@ -26,6 +26,12 @@ public class TspMainApp extends Application {
     this.primaryStage = primaryStage;
     primaryStage.setTitle("TSP App");
 
+    initRootLayout();
+
+    primaryStage.show();
+  }
+
+  private void initRootLayout() {
     FXMLLoader loader = new FXMLLoader();
     loader.setLocation(TspMainApp.class.getResource("view/MainView.fxml"));
 
@@ -40,11 +46,8 @@ public class TspMainApp extends Application {
       primaryStage.setScene(scene);
       primaryStage.show();
     } catch(IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
-    primaryStage.show();
   }
 
   public void showAlert(AlertType alertType, Window owner, String title, String header, String context) {

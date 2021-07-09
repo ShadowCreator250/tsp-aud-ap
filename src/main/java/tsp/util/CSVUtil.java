@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-import javafx.scene.chart.XYChart.Data;
-import javafx.scene.chart.XYChart.Series;
-
 import tsp.model.Point;
 
 public class CSVUtil {
@@ -118,14 +115,5 @@ public class CSVUtil {
       return Integer.parseInt(trimmedString);
     }
     throw new CSVFormatException("Failed to convert String to int: String \"" + string + "\" is empty or contains non-digit characters.");
-  }
-
-  public static Series<Number, Number> convertToSeries(List<Point> points) {
-    Series<Number, Number> series = new Series<>();
-
-    for(Point p : points) {
-      series.getData().add(new Data<>(p.getX(), p.getY()));
-    }
-    return series;
   }
 }
