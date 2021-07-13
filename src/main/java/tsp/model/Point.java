@@ -45,4 +45,9 @@ public class Point {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "P(" + x + "; " + y + ")";
+  }
+
 }
