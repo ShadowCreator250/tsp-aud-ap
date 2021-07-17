@@ -44,24 +44,28 @@ public class DistributedRandomNumberGenerator {
    * @param probability
    */
   public void addNumber(int value, double probability) {
-    if(this.distribution.containsKey(value)) {
-      distSum -= this.distribution.get(value);
+    if(this.getDistribution().containsKey(value)) {
+      distSum -= this.getDistribution().get(value);
     }
-    this.distribution.put(value, probability);
-    distSum = distSum + probability;
+    this.getDistribution().put(value, probability);
+    distSum += probability;
   }
 
   public int getDistributedRandomNumber() {
     double rand = Math.random();
-    double ratio = 1.0f / getDistSum();
+    double ratio = 1.0 / distSum;
     double tempDist = 0;
-    for(Entry<Integer, Double> distr : distribution.entrySet()) {
+    for(Entry<Integer, Double> distr : getDistribution().entrySet()) {
       tempDist += distr.getValue();
       if(rand / ratio <= tempDist) {
         return distr.getKey();
       }
     }
-    return 0;
+    return -1;
+  }
+
+  public Map<Integer, Double> getDistribution() {
+    return distribution;
   }
 
   public double getDistSum() {

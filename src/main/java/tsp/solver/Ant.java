@@ -14,8 +14,8 @@ public class Ant implements Callable<int[]> {
   private int[] path;
   private int step;
 
-  public Ant(int[] indices, int startIndex, DistributedRandomNumberGenerator[] randomTrailChoosers) {
-    if(indices.length != randomTrailChoosers.length) {
+  public Ant(int[] indices, int startIndex, double[][] desirabilityMatrix) {
+    if(indices.length != desirabilityMatrix.length) {
       throw new IllegalArgumentException("The indexes and randomTrailChoosers arrays have different lengths which they shouldn't.");
     }
     if(startIndex < 0 || startIndex >= indices.length) {
@@ -24,35 +24,57 @@ public class Ant implements Callable<int[]> {
     }
     this.indices = indices;
     this.currentPointIndex = startIndex;
-    this.randomTrailChoosers = randomTrailChoosers;
+    this.randomTrailChoosers = generateRandomTrailChoosers(desirabilityMatrix);
     this.pointsVisited = new boolean[indices.length];
     this.path = new int[indices.length];
     for(int i = 0; i < path.length; i++) {
       path[i] = -1;
     }
     this.pointsVisitedCount = 0;
-    this.step = -1;
-    System.out.println("ant setup done");
+    this.step = 0;
     moveTo(currentPointIndex);
   }
 
+  private DistributedRandomNumberGenerator[] generateRandomTrailChoosers(double[][] desirabilityMatrix) {
+    DistributedRandomNumberGenerator[] result = new DistributedRandomNumberGenerator[desirabilityMatrix.length];
+
+    for(int i = 0; i < desirabilityMatrix.length; i++) {
+      DistributedRandomNumberGenerator drng = new DistributedRandomNumberGenerator();
+      for(int j = 0; j < desirabilityMatrix.length; j++) {
+        drng.addNumber(j, desirabilityMatrix[i][j]);
+      }
+      result[i] = drng;
+    }
+    return result;
+  }
+
   public void run() {
+    System.out.println("run");
     while(pointsVisitedCount < indices.length) {
+
+      // remove the visited point from the statistic
+      for(DistributedRandomNumberGenerator drng : randomTrailChoosers) {
+        drng.addNumber(currentPointIndex, 0.0);
+      }
+
       int nextPointIndex = randomTrailChoosers[currentPointIndex].getDistributedRandomNumber();
-      System.out.println(nextPointIndex);
+      System.out.println(currentPointIndex + " -> " + nextPointIndex);
+
       if(pointsVisited[nextPointIndex]) {
         continue;
       }
+
       moveTo(nextPointIndex);
     }
   }
 
   private void moveTo(int nextPointIndex) {
-    step++;
     pointsVisited[nextPointIndex] = true;
-    pointsVisitedCount++;
     path[step] = nextPointIndex;
     currentPointIndex = nextPointIndex;
+
+    step++;
+    pointsVisitedCount++;
   }
 
   public int[] getPath() {

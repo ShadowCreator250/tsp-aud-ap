@@ -2,7 +2,6 @@ package tsp.solver;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -13,9 +12,10 @@ import java.util.stream.IntStream;
 import tsp.model.Point;
 import tsp.util.CSVFormatException;
 import tsp.util.CSVUtil;
-import tsp.util.DistributedRandomNumberGenerator;
 
 public class AntColonyOptimizationSolver extends TspSolver {
+
+  private static final double DOUBLE_TOLERANCE = 0.001;
 
   public static void main(String[] args) {
     String filePath = BruteForceSolver.class.getClassLoader().getResource("points-set3.csv").getPath().substring(1);
@@ -25,9 +25,9 @@ public class AntColonyOptimizationSolver extends TspSolver {
     } catch(IOException | CSVFormatException e) {
       e.printStackTrace();
     }
-    TspSolver solver = new AntColonyOptimizationSolver(points);
+    AntColonyOptimizationSolver solver = new AntColonyOptimizationSolver(points);
     solver.solve();
-    solver.printSolution();
+    //    solver.printSolution();
   }
 
   /**
@@ -53,7 +53,7 @@ public class AntColonyOptimizationSolver extends TspSolver {
    * Initial pheromone strength along all paths
    * (otherwise initial probabilities will all be zero)
    */
-  private static final double INITIAL_PHEROMONE_INTENSITY = 1;
+  private static final double INITIAL_PHEROMONE_INTENSITY = 1.0;
 
   /**
    * Proportion of pheromone to evaporate each step
@@ -89,20 +89,10 @@ public class AntColonyOptimizationSolver extends TspSolver {
   @Override
   public void solve() {
     double[][] desirabilityMatrix = createDesirabilityMatrix();
-    DistributedRandomNumberGenerator[] randomTrailChoosers = new DistributedRandomNumberGenerator[desirabilityMatrix.length];
-    
-    for(int i = 0; i < desirabilityMatrix.length; i++) {
-      DistributedRandomNumberGenerator drng = new DistributedRandomNumberGenerator();
-      for(int j = 0; j < desirabilityMatrix.length; j++) {
-        drng.addNumber(j, desirabilityMatrix[i][j]);
-      }
-      randomTrailChoosers[i] = drng;
-    }
-    
-    List<Ant> ants = IntStream.rangeClosed(1, 1)
-                              .mapToObj(i -> new Ant(getIndices(), RANDOM.nextInt(getPointsCount()), randomTrailChoosers))
+
+    List<Ant> ants = IntStream.rangeClosed(1, ANT_GROUP_SIZE)
+                              .mapToObj(i -> new Ant(getIndices(), RANDOM.nextInt(getPointsCount()), desirabilityMatrix))
                               .collect(Collectors.toList());
-    System.out.println("ants start");
     try {
       executor.invokeAll(ants).stream().map(future -> {
         try {
@@ -110,23 +100,15 @@ public class AntColonyOptimizationSolver extends TspSolver {
         } catch(Exception e) {
           throw new IllegalStateException(e);
         }
-      }).forEach(path -> {
-        System.out.println(Arrays.toString(path));
-
+      }).forEach((int[] path) -> {
         for(int i = 0; i < path.length; i++) {
           pheremoneTrails[path[i]][path[(i + 1) % path.length]] += PHEROMONE_INTENSITY;
         }
-        System.out.println("\n-----\n");
       });
     } catch(InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
-    System.out.println();
     print2dDoubleArray(pheremoneTrails);
-
-
   }
 
   private double[][] createDesirabilityMatrix() {
@@ -138,6 +120,9 @@ public class AntColonyOptimizationSolver extends TspSolver {
           continue;
         }
         double dst = getAdjacencyMatrix()[i][j];
+        if(dst <= DOUBLE_TOLERANCE && dst >= -DOUBLE_TOLERANCE) {
+          throw new IllegalStateException("There are two points (indexes " + i + " & " + j + ") that are too near together.");
+        }
         double pheromoneStrength = pheremoneTrails[i][j];
         double desirability = Math.pow(1 / dst, DISTANCE_POWER) * Math.pow(pheromoneStrength, PHEROMONE_POWER);
         result[i][j] = desirability;
