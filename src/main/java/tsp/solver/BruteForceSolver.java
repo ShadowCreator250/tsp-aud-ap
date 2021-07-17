@@ -25,20 +25,15 @@ public class BruteForceSolver extends TspSolver {
     solver.printSolution();
   }
 
-  private double bestTourDst;
-  private int[] bestTourIndices;
-
   public BruteForceSolver(List<Point> points) {
     super(points);
-    this.bestTourDst = Double.MAX_VALUE;
-    this.bestTourIndices = new int[getIndices().length];
   }
 
   @Override
   public void solve() {
     // Call with length -1 to keep one element fixed in place. This avoids wasting time 
     // evaluating tours that are identical except for beginning at a different point
-    generateSolutions(getIndices(), getIndices().length - 1);
+    generateSolutions(getIndices(), getPointsCount() - 1);
   }
 
   /** Heap's algorithm for generating all permutations */
@@ -57,28 +52,28 @@ public class BruteForceSolver extends TspSolver {
 
   private void evaluateSolution() {
     // Ignore solutions which are just the reverse of another solution
-    if(getIndices()[0] < getIndices()[getIndices().length - 2]) {
+    if(getIndices()[0] < getIndices()[getPointsCount() - 2]) {
 
       // Calculate length of the path (including returning to start point)
       double tourDst = 0;
-      for(int i = 0; i < getIndices().length; i++) {
-        int nextIndex = (i + 1) % getIndices().length;
+      for(int i = 0; i < getPointsCount(); i++) {
+        int nextIndex = (i + 1) % getPointsCount();
         tourDst += lookUpDistance(getIndices()[i], getIndices()[nextIndex]);
       }
 
       // Save the path indices if this is the best solution found so far
-      if(tourDst < bestTourDst) {
-        bestTourDst = tourDst;
-        System.arraycopy(getIndices(), 0, bestTourIndices, 0, getIndices().length);
+      if(tourDst < getBestTourDst()) {
+        setBestTourDst(tourDst);
+        System.arraycopy(getIndices(), 0, getBestTourIndices(), 0, getPointsCount());
       }
     }
   }
 
   @Override
   public void printSolution() {
-    Point[] bestTourPointsArray = Arrays.stream(bestTourIndices).mapToObj(i -> getPoints().get(i)).toArray(Point[]::new);
+    Point[] bestTourPointsArray = Arrays.stream(getBestTourIndices()).mapToObj(i -> getPoints().get(i)).toArray(Point[]::new);
     String bestTourString = Arrays.toString(bestTourPointsArray);
-    System.out.println("The solution has a distance of " + bestTourDst + " and is " + bestTourString + ".");
+    System.out.println("The solution has a distance of " + getBestTourDst() + " and is " + bestTourString + ".");
   }
 
 }

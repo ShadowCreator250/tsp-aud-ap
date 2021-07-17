@@ -9,13 +9,19 @@ import tsp.model.Point;
 public abstract class TspSolver {
 
   private List<Point> points;
+  private int pointsCount;
   private double[][] adjacencyMatrix;
   private int[] indices;
+  private double bestTourDst;
+  private int[] bestTourIndices;
 
   TspSolver(List<Point> points) {
     this.points = points;
+    this.pointsCount = points.size();
     this.adjacencyMatrix = createAdjacencyMatrix(points);
     this.indices = IntStream.rangeClosed(0, points.size() - 1).toArray();
+    this.bestTourDst = Double.MAX_VALUE;
+    this.bestTourIndices = new int[getIndices().length];
   }
 
   public static double[][] createAdjacencyMatrix(List<Point> points) {
@@ -56,12 +62,32 @@ public abstract class TspSolver {
     return points;
   }
 
+  public int getPointsCount() {
+    return pointsCount;
+  }
+
   public double[][] getAdjacencyMatrix() {
     return adjacencyMatrix;
   }
 
   public int[] getIndices() {
     return indices;
+  }
+
+  public double getBestTourDst() {
+    return bestTourDst;
+  }
+
+  public void setBestTourDst(double bestTourDst) {
+    this.bestTourDst = bestTourDst;
+  }
+
+  public int[] getBestTourIndices() {
+    return bestTourIndices;
+  }
+
+  public void setBestTourIndices(int[] bestTourIndices) {
+    this.bestTourIndices = bestTourIndices;
   }
 
 }
