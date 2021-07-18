@@ -2,6 +2,7 @@ package tsp.solver;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -68,14 +69,14 @@ public class AntColonyOptimizationSolver extends TspSolver {
 
   private static final Random RANDOM = new Random();
 
-  private static final int TIMES_BEST_TOUR_DISTANCE_MUST_STAY_SAME_UNTIL_TERMINATION = 20;
+  public static final int TIMES_BEST_TOUR_DISTANCE_MUST_STAY_SAME_UNTIL_TERMINATION = 20;
 
   private double[][] pheromoneTrails;
 
   private ExecutorService executor;
 
   private boolean bestTourDstChanges;
-  private int timesBestTourDstStaysSame;
+  public int timesBestTourDstStaysSame;
 
   public AntColonyOptimizationSolver(List<Point> points) {
     super(points);
@@ -134,6 +135,44 @@ public class AntColonyOptimizationSolver extends TspSolver {
       System.out.println("\n ---- \n");
     }
 
+  }
+
+  public List<Point> solvePartial() {
+    bestTourDstChanges = false;
+    double[][] desirabilityMatrix = createDesirabilityMatrix();
+
+    List<Ant> ants = IntStream.rangeClosed(1, ANT_GROUP_SIZE)
+                              .mapToObj(i -> new Ant(getIndices(), RANDOM.nextInt(getPointsCount()), desirabilityMatrix))
+                              .collect(Collectors.toList());
+    try {
+      executor.invokeAll(ants).stream().map(future -> {
+        try {
+          return future.get();
+        } catch(Exception e) {
+          throw new IllegalStateException(e);
+        }
+      }).forEach((int[] path) -> {
+        printPath(path);
+        double roundTripDistance = calcRoundTripDistanceAndAddPheromoneToPaths(path);
+        if(roundTripDistance < getBestTourDst()) {
+          bestTourDstChanges = true;
+          setBestTourDst(roundTripDistance);
+          setBestTourIndices(path);
+        }
+      });
+    } catch(InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    if(bestTourDstChanges) {
+      timesBestTourDstStaysSame = 0;
+    } else {
+      timesBestTourDstStaysSame++;
+    }
+    System.out.println(timesBestTourDstStaysSame);
+
+    evaporateSomePheromone();
+    return Arrays.stream(getBestTourIndices()).mapToObj(i -> getPoints().get(i)).collect(Collectors.toList());
   }
 
   private double calcRoundTripDistanceAndAddPheromoneToPaths(int[] path) {
