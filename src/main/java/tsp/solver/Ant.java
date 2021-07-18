@@ -38,10 +38,10 @@ public class Ant implements Callable<int[]> {
   private DistributedRandomNumberGenerator[] generateRandomTrailChoosers(double[][] desirabilityMatrix) {
     DistributedRandomNumberGenerator[] result = new DistributedRandomNumberGenerator[desirabilityMatrix.length];
 
-    for(int i = 0; i < desirabilityMatrix.length; i++) {
+    for(int i = 0; i < desirabilityMatrix.length; i++) { // fromPoint
       DistributedRandomNumberGenerator drng = new DistributedRandomNumberGenerator();
-      for(int j = 0; j < desirabilityMatrix.length; j++) {
-        drng.addNumber(j, desirabilityMatrix[i][j]);
+      for(int j = 0; j < desirabilityMatrix.length; j++) { // toPoint 
+        drng.addNumber(j, desirabilityMatrix[i][j]); // with probabilities
       }
       result[i] = drng;
     }
@@ -49,7 +49,6 @@ public class Ant implements Callable<int[]> {
   }
 
   public void run() {
-    System.out.println("run");
     while(pointsVisitedCount < indices.length) {
 
       // remove the visited point from the statistic
@@ -58,9 +57,8 @@ public class Ant implements Callable<int[]> {
       }
 
       int nextPointIndex = randomTrailChoosers[currentPointIndex].getDistributedRandomNumber();
-      System.out.println(currentPointIndex + " -> " + nextPointIndex);
 
-      if(pointsVisited[nextPointIndex]) {
+      if(nextPointIndex == -1 || pointsVisited[nextPointIndex]) {
         continue;
       }
 
@@ -82,7 +80,7 @@ public class Ant implements Callable<int[]> {
   }
 
   @Override
-  public int[] call() throws Exception {
+  public int[] call() {
     run();
     return path;
   }

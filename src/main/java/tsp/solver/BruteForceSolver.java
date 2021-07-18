@@ -2,7 +2,6 @@ package tsp.solver;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import tsp.model.Point;
@@ -55,11 +54,7 @@ public class BruteForceSolver extends TspSolver {
     if(getIndices()[0] < getIndices()[getPointsCount() - 2]) {
 
       // Calculate length of the path (including returning to start point)
-      double tourDst = 0;
-      for(int i = 0; i < getPointsCount(); i++) {
-        int nextIndex = (i + 1) % getPointsCount();
-        tourDst += lookUpDistance(getIndices()[i], getIndices()[nextIndex]);
-      }
+      double tourDst = calcPathDistance(getIndices());
 
       // Save the path indices if this is the best solution found so far
       if(tourDst < getBestTourDst()) {
@@ -67,13 +62,6 @@ public class BruteForceSolver extends TspSolver {
         System.arraycopy(getIndices(), 0, getBestTourIndices(), 0, getPointsCount());
       }
     }
-  }
-
-  @Override
-  public void printSolution() {
-    Point[] bestTourPointsArray = Arrays.stream(getBestTourIndices()).mapToObj(i -> getPoints().get(i)).toArray(Point[]::new);
-    String bestTourString = Arrays.toString(bestTourPointsArray);
-    System.out.println("The solution has a distance of " + getBestTourDst() + " and is " + bestTourString + ".");
   }
 
 }
