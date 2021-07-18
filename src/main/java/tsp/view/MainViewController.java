@@ -18,6 +18,7 @@ import javafx.stage.FileChooser;
 
 import tsp.TspMainApp;
 import tsp.model.Point;
+import tsp.solver.AntColonyOptimizationSolver;
 import tsp.util.CSVFormatException;
 import tsp.util.CSVUtil;
 
@@ -35,6 +36,8 @@ public class MainViewController {
   private LineChart<Number, Number> chart = new LineChart<Number, Number>(xaxis, yaxis);
   @FXML
   private ChoiceBox<String> loadActionSelect;
+
+  private List<Point> points;
 
   @FXML
   private void initialize() {
@@ -87,7 +90,8 @@ public class MainViewController {
   private void readPointsFromFileWithErrorHandling(File file) {
     if(file != null) {
       try {
-        addPointsToChart(CSVUtil.readPointsFromFile(file.getAbsolutePath()));
+        points = (CSVUtil.readPointsFromFile(file.getAbsolutePath()));
+        addPointsToChart(points);
       } catch(IOException e) {
         main.showAlert(AlertType.ERROR, main.getPrimaryStage(), "Error reading file", "An Error occured while reading a file.",
             e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -103,6 +107,15 @@ public class MainViewController {
     points.forEach((Point c) -> chart.getData()
                                      .get(0).getData()
                                      .add(new Data<>(c.getX(), c.getY())));
+  }
+
+  @FXML
+  private void handleSolveButton() {
+    AntColonyOptimizationSolver solver = new AntColonyOptimizationSolver(points);
+
+    while(solver.timesBestTourDstStaysSame < solver.TIMES_BEST_TOUR_DISTANCE_MUST_STAY_SAME_UNTIL_TERMINATION) {
+      addPointsToChart(solver.solvePartial());
+    }
   }
 
 }

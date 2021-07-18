@@ -26,4 +26,11 @@
         </yAxis>
       </LineChart>
    </center>
+   <bottom>
+      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <items>
+          <Button mnemonicParsing="false" onAction="#handleSolveButton" text="Solve" />
+        </items>
+      </ToolBar>
+   </bottom>
 </BorderPane>
