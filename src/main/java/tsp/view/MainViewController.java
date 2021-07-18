@@ -7,7 +7,9 @@ import java.nio.file.Path;
 import java.util.List;
 
 import javafx.fxml.FXML;
-import javafx.scene.chart.ScatterChart;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.LineChart.SortingPolicy;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Alert.AlertType;
@@ -25,8 +27,12 @@ public class MainViewController {
 
   private TspMainApp main;
 
+  final NumberAxis xaxis = new NumberAxis();
+
+  final NumberAxis yaxis = new NumberAxis();
+
   @FXML
-  private ScatterChart<Number, Number> chart;
+  private LineChart<Number, Number> chart = new LineChart<Number, Number>(xaxis, yaxis);
   @FXML
   private ChoiceBox<String> loadActionSelect;
 
@@ -38,6 +44,7 @@ public class MainViewController {
 
     chart.getData()
          .add(new Series<>());
+    chart.setAxisSortingPolicy(SortingPolicy.NONE);
   }
 
   public void setMain(TspMainApp tspMainApp) {
