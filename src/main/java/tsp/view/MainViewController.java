@@ -116,6 +116,7 @@ public class MainViewController {
     while(solver.timesBestTourDstStaysSame < solver.TIMES_BEST_TOUR_DISTANCE_MUST_STAY_SAME_UNTIL_TERMINATION) {
       addPointsToChart(solver.solvePartial());
     }
+    solver.cleanup();
   }
 
 }

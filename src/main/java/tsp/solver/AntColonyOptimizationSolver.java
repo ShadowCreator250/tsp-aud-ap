@@ -133,7 +133,10 @@ public class AntColonyOptimizationSolver extends TspSolver {
       System.out.println("Partial Solution:");
       printSolution();
       System.out.println("\n ---- \n");
+
     }
+
+    cleanup();
 
   }
 
@@ -211,6 +214,10 @@ public class AntColonyOptimizationSolver extends TspSolver {
       }
     }
     return result;
+  }
+
+  public void cleanup() {
+    executor.shutdown();
   }
 
 }
