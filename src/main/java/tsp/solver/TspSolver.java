@@ -64,7 +64,7 @@ public abstract class TspSolver {
   public void printPath(int[] path) {
     Point[] pathTourPointsArray = Arrays.stream(path).mapToObj(i -> getPoints().get(i)).toArray(Point[]::new);
     String pathTourString = Arrays.toString(pathTourPointsArray);
-    System.out.println("The solution has a distance of " + calcPathDistance(path) + " and is " + pathTourString + ".");
+    System.out.println("The path has a distance of " + calcPathDistance(path) + " and is " + pathTourString + ".");
   }
 
   public static void swap(int[] array, int index1, int index2) {

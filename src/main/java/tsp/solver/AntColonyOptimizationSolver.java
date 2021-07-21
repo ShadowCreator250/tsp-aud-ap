@@ -28,7 +28,7 @@ public class AntColonyOptimizationSolver extends TspSolver {
     }
     AntColonyOptimizationSolver solver = new AntColonyOptimizationSolver(points);
     solver.solve();
-    System.out.println("Final Solition:");
+    System.out.println("\nFinal Solition:");
     solver.printSolution();
   }
 
@@ -96,57 +96,26 @@ public class AntColonyOptimizationSolver extends TspSolver {
   @Override
   public void solve() {
     while(timesBestTourDstStaysSame < TIMES_BEST_TOUR_DISTANCE_MUST_STAY_SAME_UNTIL_TERMINATION) {
-      bestTourDstChanges = false;
-      double[][] desirabilityMatrix = createDesirabilityMatrix();
-
-      List<Ant> ants = IntStream.rangeClosed(1, ANT_GROUP_SIZE)
-                                .mapToObj(i -> new Ant(getIndices(), RANDOM.nextInt(getPointsCount()), desirabilityMatrix))
-                                .collect(Collectors.toList());
-      try {
-        executor.invokeAll(ants).stream().map(future -> {
-          try {
-            return future.get();
-          } catch(Exception e) {
-            throw new IllegalStateException(e);
-          }
-        }).forEach((int[] path) -> {
-          printPath(path);
-          double roundTripDistance = calcRoundTripDistanceAndAddPheromoneToPaths(path);
-          if(roundTripDistance < getBestTourDst()) {
-            bestTourDstChanges = true;
-            setBestTourDst(roundTripDistance);
-            setBestTourIndices(path);
-          }
-        });
-      } catch(InterruptedException e) {
-        e.printStackTrace();
-      }
-
-      if(bestTourDstChanges) {
-        timesBestTourDstStaysSame = 0;
-      } else {
-        timesBestTourDstStaysSame++;
-      }
-      System.out.println(timesBestTourDstStaysSame);
-
-      evaporateSomePheromone();
-      System.out.println("Partial Solution:");
-      printSolution();
-      System.out.println("\n ---- \n");
-
+      prepareAndRunGeneration();
     }
 
     cleanup();
-
   }
 
   public List<Point> solvePartial() {
+    prepareAndRunGeneration();
+    return Arrays.stream(getBestTourIndices()).mapToObj(i -> getPoints().get(i)).collect(Collectors.toList());
+  }
+
+  private void prepareAndRunGeneration() {
     bestTourDstChanges = false;
     double[][] desirabilityMatrix = createDesirabilityMatrix();
 
     List<Ant> ants = IntStream.rangeClosed(1, ANT_GROUP_SIZE)
                               .mapToObj(i -> new Ant(getIndices(), RANDOM.nextInt(getPointsCount()), desirabilityMatrix))
                               .collect(Collectors.toList());
+    System.out.println("\n ---- New Generation ---- \n");
+    System.out.println("The paths of every single ant: ");
     try {
       executor.invokeAll(ants).stream().map(future -> {
         try {
@@ -172,10 +141,10 @@ public class AntColonyOptimizationSolver extends TspSolver {
     } else {
       timesBestTourDstStaysSame++;
     }
-    System.out.println(timesBestTourDstStaysSame);
-
     evaporateSomePheromone();
-    return Arrays.stream(getBestTourIndices()).mapToObj(i -> getPoints().get(i)).collect(Collectors.toList());
+    System.out.println("Times since the best tour didn't change: " + timesBestTourDstStaysSame);
+    System.out.println("Partial Solution:");
+    printSolution();
   }
 
   private double calcRoundTripDistanceAndAddPheromoneToPaths(int[] path) {

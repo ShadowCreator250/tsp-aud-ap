@@ -3,6 +3,7 @@ package tsp.util;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 /**
  * Helper class to provide a random Integers out of a set where each Integer has it's own probability.
@@ -28,6 +29,7 @@ import java.util.Map.Entry;
  */
 public class DistributedRandomNumberGenerator {
 
+  private static final Random RANDOM = new Random();
   private Map<Integer, Double> distribution;
   private double distSum;
 
@@ -52,7 +54,7 @@ public class DistributedRandomNumberGenerator {
   }
 
   public int getDistributedRandomNumber() {
-    double rand = Math.random();
+    double rand = RANDOM.nextDouble();
     double ratio = 1.0 / distSum;
     double tempDist = 0;
     for(Entry<Integer, Double> distr : getDistribution().entrySet()) {

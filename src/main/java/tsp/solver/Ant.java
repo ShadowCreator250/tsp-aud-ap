@@ -6,6 +6,7 @@ import tsp.util.DistributedRandomNumberGenerator;
 
 public class Ant implements Callable<int[]> {
 
+  private static final int NO_POINT_FOUND_THRESHHOLD = 25;
   private int[] indices;
   private int currentPointIndex;
   private DistributedRandomNumberGenerator[] randomTrailChoosers;
@@ -13,6 +14,7 @@ public class Ant implements Callable<int[]> {
   private int pointsVisitedCount;
   private int[] path;
   private int step;
+  private int noNextPointFoundCounter;
 
   public Ant(int[] indices, int startIndex, double[][] desirabilityMatrix) {
     if(indices.length != desirabilityMatrix.length) {
@@ -59,11 +61,39 @@ public class Ant implements Callable<int[]> {
       int nextPointIndex = randomTrailChoosers[currentPointIndex].getDistributedRandomNumber();
 
       if(nextPointIndex == -1 || pointsVisited[nextPointIndex]) {
-        continue;
+        if(nextPointIndex == -1) {
+          syserr("The randomTrailChooser didn't choose a point. Trying again.");
+        } else if(pointsVisited[nextPointIndex]) {
+          syserr("The randomTrailChooser choose a point that was already visited. Trying again.");
+        }
+        noNextPointFoundCounter++;
+        if(noNextPointFoundCounter > NO_POINT_FOUND_THRESHHOLD) {
+          nextPointIndex = findFirstFreePoint(nextPointIndex);
+        } else {
+          continue;
+        }
       }
+      
 
       moveTo(nextPointIndex);
     }
+  }
+
+  private void syserr(String message) {
+    System.err.println(this.toString() + " at " + step + ": " + message);
+  }
+
+  private int findFirstFreePoint(int nextPointIndex) {
+    for(int i = 0; i < pointsVisited.length; i++) {
+      if(!pointsVisited[i]) {
+        nextPointIndex = i;
+        break;
+      }
+      if(i == pointsVisited.length - 1) {
+        syserr("There is no point left to visit.");
+      }
+    }
+    return nextPointIndex;
   }
 
   private void moveTo(int nextPointIndex) {
